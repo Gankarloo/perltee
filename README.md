@@ -23,7 +23,19 @@ Dont forget to assign a filename to ${LOGFILE}
 
 This will capture all output from the script.
 
-
+### Same onliner split on multiple lines for readability
+```bash
+exec 1> >(perl -e 'use POSIX;
+	if (@ARGV == 0){die "specify logfile";}
+	open(my $log, ">>", $ARGV[0]) or die;
+	while (<STDIN>) {
+		print $_;
+		my $TST = strftime "[%Y-%m-%d %H:%M:%S] ", localtime;
+		$_ =~ s/\e[\[\(][0-9;]*[mGKFB]//g;
+		my $line = $TST . $_;
+		print $log $line;
+	}' "${LOGFILE}") 2>&1.
+```
 ### As a separate script in a bash script.
 ```bash
 exec 1> >(../perltee++/perltee++.pl "${LOGFILE}") 2>&1
